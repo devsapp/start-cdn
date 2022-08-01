@@ -1,13 +1,48 @@
 edition: 1.0.0          #  命令行YAML规范版本，遵循语义化版本（Semantic Versioning）规范
-name: functionApp       #  项目名称
-access: aliyun-release  #  秘钥别名
+name: start-oss-cdn       #  项目名称
+access: "{{ access }}"  #  秘钥别名
 
 vars: # 全局变量
   region: "{{ region }}"
-  appName: "{{ appName }}"
+  bucket: "{{ bucket }}"
+  codeUri: "{{ codeUri }}"
+  indexPage: "{{ indexPage }}"
+  errorPage: "{{ errorPage }}"
+  domainName: "{{ domainName }}"
+  refreshAfterDeploy: "{{ refreshAfterDeploy }}"
 
 services:
-  function-test: #  服务名称
-    component: cdn  # 组件名称
+  oss-website: # oss相关配置
+    component: oss  # 组件名称
     props: #  组件的属性值
       region: ${vars.region}
+      bucket: ${vars.bucket}
+      acl: public-read
+      codeUri: ${vars.codeUri}
+      cors: # OSS 设置跨域资源共享规则
+        [
+          {
+            allowedOrigin: [ '*' ],
+            allowedMethod: [ 'GET', 'PUT', 'DELETE', 'POST', 'HEAD' ],
+          }
+        ]
+      website: # OSS 静态网站配置
+        index: ${vars.indexPage}
+        error: ${vars.errorPage}
+        subDir: {
+          type: redirect
+        }
+  cdn-service: # cdn 相关配置
+    component: devsapp/cdn  # 组件名称
+    props: #  组件的属性值
+      cdnType: web
+      domainName: ${vars.domainName}
+      sources: # 回源地址列表（必填项）
+          - type: oss # 源站类型（必填项），可选值：ipaddr IP源站、domain 域名源站、oss OSS Bucket为源站、fc_domain 函数计算为源站
+            content: ${vars.bucket}.oss-${vars.region}.aliyuncs.com # 回源地址（必填项）
+      refreshConfig:
+        objectPaths:
+          - http://${vars.domainName}/
+        objectType: File
+      refreshAfterDeploy: ${vars.refreshAfterDeploy}
+

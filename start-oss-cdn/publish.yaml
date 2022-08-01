@@ -9,15 +9,21 @@ Tags:
   - Web应用
   - CDN
 Category: Web框架
-# Service: # 使用的服务
-#   Serverless 应用引擎:
-#     Authorities: #权限描述
-#       - AliyunCDNFullAccess
+Service: # 使用的服务
+  对象存储:
+    Authorities: #权限描述
+      - AliyunOSSFullAccess
+  CDN:
+    Authorities: #权限描述
+      - AliyunCDNFullAccess
 Parameters:
   type: object
   additionalProperties: false # 不允许增加其他属性
   required: # 必填项
     - region
+    - bucket
+    - codeUri
+    - domainName
   properties:
     region:
       title: 地域
@@ -28,9 +34,46 @@ Parameters:
         - cn-beijing
         - cn-hangzhou
         - cn-shanghai
+        - cn-qingdao
         - cn-zhangjiakou
+        - cn-huhehaote
         - cn-shenzhen
-        - cn-guangzhou
+        - cn-chengdu
         - cn-hongkong
         - ap-southeast-1
+        - ap-southeast-2
+        - ap-southeast-3
+        - ap-southeast-5
+        - ap-northeast-1
+        - eu-central-1
+        - eu-west-1
         - us-west-1
+        - us-east-1
+        - ap-south-1
+    bucket:
+      title: OSS Bucket
+      description: OSS Bucket
+      type: string
+    codeUri:
+      title: 本地需要上传的文件目录路径
+      description: 要上传的目标文件的路径路径，如Vue项目的dist
+      type: string
+    indexPage:
+      title: 默认首页
+      description: 网站默认首页html
+      type: string
+      default: index.html
+    errorPage:
+      title: 默认404页面
+      description: 当页面找不到时跳转到的页面
+      type: string
+      default: 404.html
+    domainName:
+      title: 加速域名
+      description: cdn加速域名，必填项
+      type: string
+    refreshAfterDeploy:
+      title: 部署后自动刷新cdn
+      description: 部署完成后字段cdn的缓存，让cdn的缓存失效，下次访问直接访问源站
+      type: boolean
+      default: true

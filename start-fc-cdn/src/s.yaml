@@ -43,15 +43,12 @@ services:
                 - GET
   cdn-service: # cdn 相关配置
     component: devsapp/cdn  # 组件名称
-    actions: # 自定义执行逻辑
-      pre-deploy: # 在deploy之前运行
-        - plugin: cdn-fc-plugin
-          args:
-            serviceName: ${vars.serviceName}
-            functionName: ${vars.functionName}
     props: #  组件的属性值
       cdnType: web
       domainName: ${vars.domainName}
+      sources:
+        - type: fc_domain
+          content: ${website.output.url.custom_domain[0].domain}
       refreshConfig:
         objectPaths:
           - http://${vars.domainName}/

@@ -43,6 +43,6 @@ services:
       refreshConfig:
         objectPaths:
           - http://${vars.domainName}/
-        objectType: File
+        objectType: Directory
       refreshAfterDeploy: ${vars.refreshAfterDeploy}
 

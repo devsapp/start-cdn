@@ -1,0 +1,57 @@
+edition: 1.0.0          #  命令行YAML规范版本，遵循语义化版本（Semantic Versioning）规范
+name: start-fc-cdn       #  项目名称
+access: "{{ access }}"  #  秘钥别名
+vars: # 全局变量
+  region: "{{ region }}"
+  serviceName: "{{ serviceName }}"
+  functionName: "{{ functionName }}"
+  domainName: "{{ domainName }}"
+  refreshAfterDeploy: "{{ refreshAfterDeploy }}"
+
+services:
+  website:
+    component: fc
+    actions: # 自定义执行逻辑
+      pre-deploy: # 在deploy之前运行
+        - plugin: website-fc
+    props: #  组件的属性值
+      region: ${vars.region}
+      service:
+        name: ${vars.serviceName}
+        internetAccess: true
+        description: 'fc static website'
+      function:
+        name: ${vars.functionName}
+        description: 'fc static website'
+        runtime: nodejs14   # 任何一个 runtime 都可以
+        codeUri: ./dist
+        memorySize: 128
+        timeout: 60
+      triggers:
+        - name: httpTrigger
+          type: http
+          config:
+            authType: anonymous
+            methods:
+              - GET
+      customDomains:
+        - domainName: auto
+          protocol: HTTP
+          routeConfigs:
+            - path: /*
+              methods:
+                - GET
+  cdn-service: # cdn 相关配置
+    component: devsapp/cdn  # 组件名称
+    props: #  组件的属性值
+      cdnType: web
+      domainName: ${vars.domainName}
+      sources:
+        - type: fc_domain
+          content: ${website.output.url.custom_domain[0].domain}
+      refreshConfig:
+        objectPaths:
+          - http://${vars.domainName}/
+        objectType: Directory
+      refreshAfterDeploy: ${vars.refreshAfterDeploy}
+

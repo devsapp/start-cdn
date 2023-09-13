@@ -2,7 +2,7 @@ Type: Application
 Name: start-oss-cdn
 Provider:
   - 阿里云
-Version: 0.0.1
+Version: 0.0.2
 Description: OSS 回源到CDN
 HomePage: https://github.com/devsapp/start-cdn/start-oss-cdn/
 Tags:
